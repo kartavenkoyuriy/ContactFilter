@@ -1,20 +1,21 @@
 package com.ardas.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
-public class Contacts {
+@Table(name = "Contacts")
+public class Contact {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
 
-    public Contacts() {
+    public Contact() {
+    }
 
+    public Contact(String name) {
+        this.name = name;
     }
 
     public Long getId() {
