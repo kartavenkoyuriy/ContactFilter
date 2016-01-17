@@ -17,12 +17,12 @@ public class ContactController {
     @Autowired
     ContactService contactService;
 
-//    @RequestMapping(value = "/contacts", method = RequestMethod.GET)
-//    public Contact getByFilter(@RequestParam(value = "nameFilter", defaultValue = "1") String filter) {
-//        return null;
-//    }
-
     @RequestMapping(value = "/contacts", method = RequestMethod.GET)
+    public List<Contact> getByFilter(@RequestParam(value = "nameFilter") String filter) {
+        return contactService.getContactsByFilter(filter);
+    }
+
+    @RequestMapping(value = "/contactsById", method = RequestMethod.GET)
     public Contact getById(@RequestParam(value = "nameFilter", defaultValue = "1") Long id) {
         return contactService.getContactById(id);
     }
