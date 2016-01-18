@@ -3,6 +3,7 @@ package com.ardas.service;
 import com.ardas.entity.Contact;
 import com.ardas.repository.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -17,8 +18,18 @@ public class ContactService {
     @Autowired
     ContactRepository contactRepository;
 
+    private volatile List<Contact> allContacts;
+
     public Contact getContactById(long id){
-        return contactRepository.findOne(id);
+        isContactListInitialized();
+
+        for (Contact contact : allContacts) {//TODO:bad logic
+            if(contact.getId() == id){
+                return contact;
+            }
+        }
+
+        return null;//TODO:null?
     }
 
     public Iterable<Contact> getAllContacts(){
@@ -27,26 +38,42 @@ public class ContactService {
 
     @Transactional
     public Contact createContact(Contact contact){
-        return contactRepository.save(contact);
+        Contact c = contactRepository.save(contact);
+
+        isContactListInitialized();
+        allContacts.add(c);
+        return c;
     }
 
     @Transactional
     public Contact updateContact(Contact contact){
-        return contactRepository.save(contact);
+        Contact c = contactRepository.save(contact);
+
+        isContactListInitialized();
+        if(allContacts.contains(contact)) {
+            allContacts.set(allContacts.indexOf(contact), c);//TODO:bad logic
+            return c;
+        } else {
+            return null;//TODO:null?
+        }
     }
 
     @Transactional
     public void deleteContact(Contact contact){
         contactRepository.delete(contact);
+
+        allContacts.indexOf(contact);
+        if(allContacts.contains(contact)){
+            allContacts.remove(contact);//TODO:add some logic or exceptions or
+        }
     }
 
     public List<Contact> getContactsByFilter(String filter){
-        List<Contact> allContacts = (List<Contact>) getAllContacts();
-
         Pattern pattern = Pattern.compile(filter);
         Matcher matcher;
 
         List<Contact> resultList = new ArrayList<>();
+        isContactListInitialized();
         for (Contact contact : allContacts) {
             matcher = pattern.matcher(contact.getName());
             if(!matcher.find()){
@@ -54,7 +81,12 @@ public class ContactService {
             }
         }
         return resultList;
-//        return contactRepository.getContactsByFilter(filter);
+    }
+
+    private void isContactListInitialized(){
+        if(allContacts == null){
+            allContacts = new ArrayList<>();
+        }
     }
 
 }

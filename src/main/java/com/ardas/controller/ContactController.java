@@ -3,10 +3,7 @@ package com.ardas.controller;
 import com.ardas.entity.Contact;
 import com.ardas.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,12 +15,12 @@ public class ContactController {
     ContactService contactService;
 
     @RequestMapping(value = "/contacts", method = RequestMethod.GET)
-    public List<Contact> getByFilter(@RequestParam(value = "nameFilter") String filter) {
+    public List<Contact> getByFilter(@PathVariable("nameFilter") String filter) {
         return contactService.getContactsByFilter(filter);
     }
 
     @RequestMapping(value = "/contactsById", method = RequestMethod.GET)
-    public Contact getById(@RequestParam(value = "nameFilter", defaultValue = "1") Long id) {
+    public Contact getById(@PathVariable("nameFilter") Long id) {
         return contactService.getContactById(id);
     }
 

@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, Long>{
 
-    @Query("SELECT c FROM Contact c WHERE c.name LIKE :regex")
-    List<Contact> getContactsByFilter(@Param("regex")String regex);
+//    @Query("SELECT c FROM Contact c WHERE c.name LIKE :regex")
+//    List<Contact> getContactsByFilter(@Param("regex")String regex);
 
 }
