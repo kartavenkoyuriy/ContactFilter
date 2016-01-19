@@ -3,12 +3,13 @@ package com.ardas.service;
 import com.ardas.entity.Contact;
 import com.ardas.repository.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,77 +17,75 @@ import java.util.regex.Pattern;
 public class ContactService {
 
     @Autowired
-    ContactRepository contactRepository;
+    private ContactRepository contactRepository;
 
-    private volatile List<Contact> allContacts;
+    private ConcurrentHashMap<Long, Contact> allContacts;
 
-    public Contact getContactById(long id){
-        isContactListInitialized();
-
-        for (Contact contact : allContacts) {//TODO:bad logic
-            if(contact.getId() == id){
-                return contact;
-            }
-        }
-
-        return null;//TODO:null?
+    public Contact getContactById(long id) {
+        return allContacts.get(id);
     }
 
-    public Iterable<Contact> getAllContacts(){
-        return contactRepository.findAll();
+    @PostConstruct
+    public void init() {
+        initializeContactMap();
+    }
+
+    public List<Contact> getAllContacts() {
+        return new ArrayList<>(allContacts.values());
     }
 
     @Transactional
-    public Contact createContact(Contact contact){
+    public Contact createContact(Contact contact) {
         Contact c = contactRepository.save(contact);
 
-        isContactListInitialized();
-        allContacts.add(c);
+        allContacts.putIfAbsent(c.getId(), c);
         return c;
     }
 
     @Transactional
-    public Contact updateContact(Contact contact){
+    public Contact updateContact(Contact contact) {
         Contact c = contactRepository.save(contact);
 
-        isContactListInitialized();
-        if(allContacts.contains(contact)) {
-            allContacts.set(allContacts.indexOf(contact), c);//TODO:bad logic
+        if (allContacts.containsValue(contact)) {
+            allContacts.replace(c.getId(), allContacts.get(c.getId()), c);
             return c;
         } else {
-            return null;//TODO:null?
+            return null;
         }
     }
 
     @Transactional
-    public void deleteContact(Contact contact){
+    public void deleteContact(Contact contact) {
         contactRepository.delete(contact);
 
-        allContacts.indexOf(contact);
-        if(allContacts.contains(contact)){
-            allContacts.remove(contact);//TODO:add some logic or exceptions or
+        if (allContacts.containsValue(contact)) {
+            allContacts.remove(contact.getId());
         }
     }
 
-    public List<Contact> getContactsByFilter(String filter){
+    public List<Contact> getContactsByFilter(String filter) {
         Pattern pattern = Pattern.compile(filter);
         Matcher matcher;
 
         List<Contact> resultList = new ArrayList<>();
-        isContactListInitialized();
-        for (Contact contact : allContacts) {
+        for (Contact contact : allContacts.values()) {
             matcher = pattern.matcher(contact.getName());
-            if(!matcher.find()){
+            if (!matcher.find()) {
                 resultList.add(contact);
             }
         }
         return resultList;
     }
 
-    private void isContactListInitialized(){
-        if(allContacts == null){
-            allContacts = new ArrayList<>();
+    private void initializeContactMap() {
+        List<Contact> contactList = contactRepository.findAll();
+        allContacts = new ConcurrentHashMap<>();
+        for (Contact contact : contactList) {
+            allContacts.put(contact.getId(), contact);
         }
     }
 
+    public void setContactRepository(ContactRepository contactRepository) {
+        this.contactRepository = contactRepository;
+    }
 }
