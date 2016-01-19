@@ -3,7 +3,6 @@ package com.ardas;
 import com.ardas.entity.Contact;
 import com.ardas.repository.ContactRepository;
 import com.ardas.service.ContactService;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @SpringApplicationConfiguration(classes = MockServletContext.class)
@@ -31,7 +30,7 @@ public class ContactServiceTest {
     private ContactService contactService;
 
     @Test
-    public void shouldReturnCorrectListOfAllContacts() throws Exception {//TODO: add logic
+    public void shouldReturnCorrectListOfAllContacts() throws Exception {
         ArrayList<Contact> contactArrayList = new ArrayList<>();
         contactArrayList.add(new Contact(1L, "asd"));
         when(contactRepository.findAll()).thenReturn(contactArrayList);
@@ -78,45 +77,6 @@ public class ContactServiceTest {
         contactArrayList.add(contact);
 
         assertEquals("das", contactArrayList.get(2).getName());
-    }
-
-    @Ignore
-    @Test
-    public void shouldCorrectRemoveContact(){
-        ArrayList<Contact> contactArrayList = new ArrayList<>();
-        contactArrayList.add(new Contact(1L, "asd"));
-        contactArrayList.add(new Contact(2L, "sad"));
-        when(contactRepository.findAll()).thenReturn(contactArrayList);
-        contactService.init();
-        List<Contact> allContacts = contactService.getAllContacts();
-
-        assertEquals(2, allContacts.size());
-        Contact c = contactArrayList.get(1);
-        contactService.deleteContact(c);
-
-        //TODO: complete end of test
-
-    }
-
-    @Ignore
-    @Test
-    public void shouldCorrectUpdateContact(){
-        ArrayList<Contact> contactArrayList = new ArrayList<>();
-        contactArrayList.add(new Contact(1L, "asd"));
-        contactArrayList.add(new Contact(2L, "sad"));
-        when(contactRepository.findAll()).thenReturn(contactArrayList);
-        contactService.init();
-        List<Contact> allContacts = contactService.getAllContacts();
-
-        assertEquals(2, allContacts.size());
-
-        when(contactRepository.save(new Contact(2L, "das"))).thenReturn(new Contact(2L, "das"));
-        Contact contact = contactService.updateContact(new Contact(2L, "das"));
-        contactArrayList.add(contact);
-
-        assertEquals("das", contactArrayList.get(2).getName());
-
-        //TODO: contactRepository.save in create & update
     }
 
     @Test
