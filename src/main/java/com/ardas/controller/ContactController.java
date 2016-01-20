@@ -3,10 +3,7 @@ package com.ardas.controller;
 import com.ardas.entity.Contact;
 import com.ardas.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,4 +29,18 @@ public class ContactController {
         return contactService.getAllContacts();
     }
 
+    @RequestMapping(value = "/addContact", method = RequestMethod.POST)
+    public Contact addContact(@RequestBody Contact contact) {
+        return contactService.createContact(contact);
+    }
+
+    @RequestMapping(value = "/updateContact", method = RequestMethod.PUT)
+         public Contact updateContact(@RequestBody Contact contact) {
+        return contactService.updateContact(contact);
+    }
+
+    @RequestMapping(value = "/deleteContact", method = RequestMethod.DELETE)
+    public void deleteContact(@RequestBody Contact contact) {
+        contactService.deleteContact(contact);
+    }
 }

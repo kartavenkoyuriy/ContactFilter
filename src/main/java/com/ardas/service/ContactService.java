@@ -50,7 +50,8 @@ public class ContactService {
             allContacts.replace(c.getId(), allContacts.get(c.getId()), c);
             return c;
         } else {
-            return null;
+            allContacts.put(c.getId(), c);
+            return c;
         }
     }
 
